@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Akış</title>
+<style>
+:root{--glass:rgba(255,255,255,.14);--edge:rgba(255,255,255,.38);--txt:#fff;--mute:rgba(255,255,255,.68);--acc:#7cf3ff;--acc2:#b38cff}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;color:var(--txt);background:#0b0720;overflow:hidden;position:fixed;inset:0}
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:radial-gradient(circle at 20% 20%,#2a1b6e,transparent 60%),radial-gradient(circle at 80% 30%,#0f5f7a,transparent 55%),linear-gradient(160deg,#120a3a,#050414 70%)}
+.blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.75;animation:float 14s ease-in-out infinite alternate}
+.b1{width:320px;height:320px;background:#ff5fa2;top:-80px;left:-60px}
+.b2{width:280px;height:280px;background:#36e2ff;top:40%;right:-80px;animation-delay:-4s}
+.b3{width:300px;height:300px;background:#8f6bff;bottom:-100px;left:20%;animation-delay:-8s}
+@keyframes float{to{transform:translate(40px,-30px) scale(1.12)}}
+.glass{background:linear-gradient(145deg,rgba(255,255,255,.22),rgba(255,255,255,.06));backdrop-filter:blur(26px) saturate(180%);-webkit-backdrop-filter:blur(26px) saturate(180%);border:1px solid var(--edge);box-shadow:0 10px 40px rgba(0,0,0,.25),inset 0 1px 1px rgba(255,255,255,.5),inset 0 -1px 1px rgba(255,255,255,.08);border-radius:26px}
+#app{position:absolute;inset:0;display:flex;flex-direction:column}
+.screen{flex:1;overflow-y:auto;padding:calc(env(safe-area-inset-top) + 20px) 16px 120px;animation:in .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes in{from{opacity:0;transform:translateY(14px) scale(.99)}}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;margin-bottom:14px}
+.pop{animation:pop .4s cubic-bezier(.3,1.4,.5,1)}
+@keyframes pop{from{transform:scale(.85);opacity:0}}
+/* auth */
+.auth{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{width:100%;max-width:380px;padding:28px 24px;text-align:center}
+.card h1{margin-bottom:6px}
+.sub{color:var(--mute);font-size:14px;margin-bottom:22px}
+.av-pick{position:relative;width:104px;height:104px;margin:0 auto 18px;border-radius:50%;overflow:hidden;cursor:pointer;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;box-shadow:0 0 0 3px rgba(255,255,255,.3),0 8px 30px rgba(124,243,255,.35);transition:transform .3s}
+.av-pick:active{transform:scale(.94)}
+.av-pick img{width:100%;height:100%;object-fit:cover}
+.av-pick input{display:none}
+input,textarea{width:100%;padding:14px 16px;border-radius:16px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;font:inherit;font-size:16px;outline:none;margin-bottom:12px;transition:border .2s,box-shadow .2s}
+input::placeholder,textarea::placeholder{color:rgba(255,255,255,.5)}
+input:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 4px rgba(124,243,255,.2)}
+.btn{width:100%;padding:15px;border:0;border-radius:16px;font:600 16px inherit;font-family:inherit;color:#06142a;background:linear-gradient(135deg,#fff,var(--acc));cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 8px 24px rgba(124,243,255,.3)}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:scale(.97)}
+.link{margin-top:14px;color:var(--mute);font-size:14px;cursor:pointer}
+.err{color:#ff8a9a;font-size:13px;min-height:18px;margin-bottom:8px}
+/* feed */
+.compose{padding:16px;margin-bottom:18px}
+.compose textarea{margin-bottom:10px;resize:none;height:70px}
+.row{display:flex;gap:10px;align-items:center}
+.pick{flex:1;padding:10px;border-radius:14px;text-align:center;font-size:14px;background:rgba(255,255,255,.12);cursor:pointer;border:1px solid var(--edge)}
+.post{padding:16px;margin-bottom:16px;animation:pop .4s}
+.ph{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.mini{width:40px;height:40px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;font-weight:700;flex:none}
+.mini img{width:100%;height:100%;object-fit:cover}
+.media{width:100%;border-radius:18px;margin:10px 0;max-height:420px;object-fit:cover;background:#000}
+.time{color:var(--mute);font-size:12px}
+.acts{display:flex;gap:18px;margin-top:8px}
+.acts button{background:none;border:0;color:var(--txt);font:inherit;cursor:pointer;padding:6px 10px;border-radius:12px;transition:transform .2s,background .2s}
+.acts button:active{transform:scale(1.2)}
+.acts button:hover{background:rgba(255,255,255,.1)}
+/* messages */
+.user{display:flex;align-items:center;gap:12px;padding:12px;margin-bottom:10px;cursor:pointer;transition:transform .2s}
+.user:active{transform:scale(.98)}
+.bubble{max-width:75%;padding:10px 14px;border-radius:18px;margin:6px 0;font-size:15px;animation:pop .35s;word-wrap:break-word}
+.me{margin-left:auto;background:linear-gradient(135deg,#4bd8ff,#8f6bff)}
+.them{background:rgba(255,255,255,.16);border:1px solid var(--edge)}
+.chatbar{display:flex;gap:8px;position:sticky;bottom:0;padding-top:10px}
+.chatbar input{margin:0}
+.chatbar .btn{width:auto;padding:0 18px;border-radius:16px}
+.back{background:none;border:0;color:var(--acc);font:inherit;font-size:16px;cursor:pointer;margin-bottom:10px}
+/* profile */
+.prof{text-align:center;padding:24px;margin-bottom:18px}
+.big{width:110px;height:110px;margin:0 auto 12px;border-radius:50%;overflow:hidden;background:linear-gradient(135deg,var(--acc),var(--acc2));display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:700;box-shadow:0 0 0 3px rgba(255,255,255,.3)}
+.big img{width:100%;height:100%;object-fit:cover}
+.stats{display:flex;justify-content:space-around;margin-top:16px}
+.stats b{display:block;font-size:20px}
+.stats span{color:var(--mute);font-size:12px}
+.out{background:rgba(255,80,110,.25)!important;margin-top:8px}
+.fr{padding:16px;margin-bottom:18px}
+.fr h2{font-size:18px;margin-bottom:12px}
+.sm{padding:8px 14px;border:1px solid var(--edge);border-radius:12px;font:600 13px inherit;font-family:inherit;cursor:pointer;background:rgba(255,255,255,.16);color:#fff;margin-left:6px;transition:transform .2s}
+.sm:active{transform:scale(.93)}
+.sm.ok{background:linear-gradient(135deg,#fff,var(--acc));color:#06142a;border:0}
+/* dock */
+.dock{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 14px);transform:translateX(-50%);display:flex;gap:6px;padding:8px;border-radius:30px;z-index:10;animation:rise .6s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes rise{from{transform:translate(-50%,120px)}}
+.dock button{position:relative;width:76px;height:58px;border:0;border-radius:22px;background:transparent;color:var(--mute);font:500 11px inherit;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;transition:transform .3s cubic-bezier(.3,1.5,.5,1),color .2s,background .3s}
+.dock button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.dock button:hover{transform:translateY(-3px)}
+.dock button:active{transform:scale(.9)}
+.dock button.on{color:#fff;background:linear-gradient(145deg,rgba(255,255,255,.35),rgba(255,255,255,.1));box-shadow:inset 0 1px 1px rgba(255,255,255,.6),0 4px 14px rgba(0,0,0,.2)}
+.dot{position:absolute;top:6px;right:18px;width:8px;height:8px;border-radius:50%;background:#ff4d6d;display:none}
+.toast{position:fixed;top:calc(env(safe-area-inset-top) + 12px);left:50%;transform:translateX(-50%);padding:12px 20px;font-size:14px;z-index:20;animation:pop .4s;white-space:nowrap}
+.empty{text-align:center;color:var(--mute);padding:40px 10px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (prefers-color-scheme:light){/* koyu tema zaten sabit */}
+</style>
+</head>
+<body>
+<div class="bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+<div id="app"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let db;
+try { db = JSON.parse(localStorage.getItem('akis_db')) || {}; } catch(e) { db = {}; }
+db.users ||= {}; db.posts ||= []; db.msgs ||= []; db.reqs ||= [];
+let me = null; try { me = localStorage.getItem('akis_me'); } catch(e) {}
+let tab = 'home', chatWith = null, pendingAv = null, pendingMedia = null;
+const save = () => { try { localStorage.setItem('akis_db', JSON.stringify(db)); } catch(e) { toast('Depolama dolu, eski içerik silin'); } };
+const setMe = n => { me = n; try { n ? localStorage.setItem('akis_me', n) : localStorage.removeItem('akis_me'); } catch(e) {} };
+const readFile = f => new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(f); });
+const shrink = (dataUrl, max = 256) => new Promise(res => { const im = new Image(); im.onload = () => { const c = document.createElement('canvas'); const s = max / Math.max(im.width, im.height); c.width = im.width * s; c.height = im.height * s; c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); res(c.toDataURL('image/jpeg', .85)); }; im.src = dataUrl; });
+const ago = t => { const d = (Date.now() - t) / 1000; if (d < 60) return 'şimdi'; if (d < 3600) return Math.floor(d / 60) + ' dk'; if (d < 86400) return Math.floor(d / 3600) + ' sa'; return new Date(t).toLocaleDateString('tr-TR'); };
+const avatar = (name, cls = 'mini') => { const u = db.users[name]; return `<div class="${cls}">${u && u.avatar ? `<img src="${u.avatar}">` : esc((name || '?')[0].toUpperCase())}</div>`; };
+function toast(msg) { document.querySelectorAll('.toast').forEach(t => t.remove()); const t = document.createElement('div'); t.className = 'toast glass'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2200); }
+
+const icons = {
+  home: '<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',
+  msg: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>'
+};
+function dock() {
+  const unread = db.msgs.some(m => m.to === me && !m.read);
+  const btn = (k, label) => `<button class="${tab === k ? 'on' : ''}" onclick="go('${k}')"><svg viewBox="0 0 24 24">${icons[k === 'home' ? 'home' : k === 'msgs' ? 'msg' : 'user']}</svg>${label}${(k === 'msgs' && unread) || (k === 'profile' && db.reqs.some(r => r.to === me)) ? '<i class="dot" style="display:block"></i>' : ''}</button>`;
+  return `<nav class="dock glass">${btn('home', 'Ana Sayfa')}${btn('msgs', 'Mesajlar')}${btn('profile', 'Profil')}</nav>`;
+}
+function go(t) { tab = t; chatWith = null; render(); }
+
+function render() {
+  const app = $('#app');
+  if (!me) { app.innerHTML = authView(); bind(); return; }
+  let body = '';
+  if (tab === 'home') body = homeView();
+  else if (tab === 'msgs') body = chatWith ? chatView() : msgsView();
+  else body = profileView(me);
+  app.innerHTML = `<div class="screen" id="scr">${body}</div>${chatWith ? '' : dock()}`;
+  if (chatWith) { const s = $('#scr'); s.scrollTop = s.scrollHeight; }
+  bind();
+}
+
+/* AUTH */
+let mode = 'login';
+function authView() {
+  const reg = mode === 'reg';
+  return `<div class="auth"><div class="card glass pop">
+    <h1>${reg ? 'Hesap Oluştur' : 'Hoş Geldin'}</h1>
+    <p class="sub">${reg ? 'E-posta gerekmez. Ad ve şifre yeterli.' : 'Adın ve şifrenle giriş yap.'}</p>
+    ${reg ? `<label class="av-pick" id="avp">?<input type="file" accept="image/*" id="avIn"></label>` : ''}
+    <input id="nm" placeholder="Ad" maxlength="20" autocomplete="username">
+    <input id="pw" type="password" placeholder="Şifre" autocomplete="current-password">
+    <div class="err" id="err"></div>
+    <button class="btn" id="sub">${reg ? 'Kaydol' : 'Giriş yap'}</button>
+    <div class="link" id="tog">${reg ? 'Zaten hesabın var mı? Giriş yap' : 'Hesabın yok mu? Kaydol'}</div>
+    <div class="err" id="hint"></div>
+  </div></div>`;
+}
+
+/* HOME */
+function homeView() {
+  const posts = [...db.posts].sort((a, b) => b.t - a.t);
+  return `<h1>Akış</h1>
+  <div class="compose glass">
+    <textarea id="ptxt" placeholder="Ne oluyor?"></textarea>
+    <div class="row">
+      <label class="pick">📷 Foto<input type="file" accept="image/*" id="mIn" hidden></label>
+      <label class="pick">🎬 Video<input type="file" accept="video/*" id="vIn" hidden></label>
+      <button class="btn" id="post" style="width:auto;padding:10px 18px">Paylaş</button>
+    </div>
+    <div id="prev"></div>
+  </div>
+  ${posts.length ? posts.map(p => `<article class="post glass">
+    <div class="ph">${avatar(p.user)}<div><b>${esc(p.user)}</b><div class="time">${ago(p.t)}</div></div></div>
+    ${p.text ? `<p>${esc(p.text)}</p>` : ''}
+    ${p.media ? (p.type === 'video' ? `<video class="media" src="${p.media}" controls playsinline></video>` : `<img class="media" src="${p.media}" loading="lazy">`) : ''}
+    <div class="acts"><button onclick="like('${p.id}')">♥ ${p.likes.length}</button>${p.user === me ? `<button onclick="del('${p.id}')">🗑</button>` : ''}</div>
+  </article>`).join('') : '<div class="empty glass" style="padding:30px">Henüz paylaşım yok. İlk paylaşımı sen yap.</div>'}`;
+}
+function like(id) { const p = db.posts.find(x => x.id === id); if (!p) return; const i = p.likes.indexOf(me); i < 0 ? p.likes.push(me) : p.likes.splice(i, 1); save(); render(); }
+function del(id) { if (!confirm('Bu paylaşım silinsin mi?')) return; db.posts = db.posts.filter(x => x.id !== id); save(); render(); }
+
+/* MESSAGES */
+function msgsView() {
+  const others = friendsOf(me);
+  if (!others.length) return `<h1>Mesajlar</h1><div class="empty glass" style="padding:30px">Mesajlaşmak için önce arkadaş ekle.<br><br><button class="btn" data-act="gofr">Arkadaş ekle</button></div>`;
+  return `<h1>Mesajlar</h1>` + others.map(n => {
+    const last = db.msgs.filter(m => (m.from === n && m.to === me) || (m.from === me && m.to === n)).pop();
+    return `<div class="user glass" onclick="openChat('${esc(n)}')">${avatar(n, 'mini')}<div style="flex:1"><b>${esc(n)}</b><div class="time">${last ? esc(last.text).slice(0, 40) : 'Sohbeti başlat'}</div></div></div>`;
+  }).join('');
+}
+function openChat(n) { chatWith = n; db.msgs.forEach(m => { if (m.from === n && m.to === me) m.read = true; }); save(); render(); }
+function chatView() {
+  const list = db.msgs.filter(m => (m.from === me && m.to === chatWith) || (m.from === chatWith && m.to === me));
+  return `<button class="back" onclick="chatWith=null;render()">‹ Geri</button>
+  <h1>${esc(chatWith)}</h1>
+  <div>${list.map(m => `<div class="bubble ${m.from === me ? 'me' : 'them'}">${esc(m.text)}</div>`).join('') || '<div class="empty">İlk mesajı gönder</div>'}</div>
+  <div class="chatbar"><input id="msg" placeholder="Mesaj yaz"><button class="btn" id="send">➤</button></div>`;
+}
+
+/* PROFILE */
+function profileView(n) {
+  const u = db.users[n] || {};
+  const mine = db.posts.filter(p => p.user === n);
+  return `<div class="prof glass pop">
+    <div class="big">${u.avatar ? `<img src="${u.avatar}">` : esc(n[0].toUpperCase())}</div>
+    <h1 style="margin:0">${esc(n)}</h1>
+    <div class="stats"><div><b>${mine.length}</b><span>Paylaşım</span></div><div><b>${mine.reduce((a, p) => a + p.likes.length, 0)}</b><span>Beğeni</span></div><div><b>${friendsOf(n).length}</b><span>Arkadaş</span></div></div>
+    <button class="btn out" id="logout" style="margin-top:20px;color:#fff">Çıkış yap</button>
+  </div>
+  ${friendsView()}
+  ${mine.length ? mine.slice().reverse().map(p => `<div class="post glass">${p.text ? `<p>${esc(p.text)}</p>` : ''}${p.media ? (p.type === 'video' ? `<video class="media" src="${p.media}" controls playsinline></video>` : `<img class="media" src="${p.media}">`) : ''}<div class="time">${ago(p.t)}</div></div>`).join('') : '<div class="empty">Henüz paylaşımın yok.</div>'}`;
+}
+
+/* FRIENDS */
+function friendsOf(n) { return (db.users[n] && db.users[n].friends) || []; }
+function friendsView() {
+  const fr = friendsOf(me);
+  const inc = db.reqs.filter(r => r.to === me);
+  const out = db.reqs.filter(r => r.from === me);
+  const person = (n, btns) => `<div class="row" style="margin:8px 0">${avatar(n)}<b style="flex:1">${esc(n)}</b>${btns}</div>`;
+  return `<div class="fr glass pop"><h2>Arkadaşlar</h2>
+    <div class="row"><input id="fs" placeholder="Kullanıcı adı yaz" style="margin:0"><button class="btn" id="fadd" style="width:auto;padding:0 20px;height:50px">Ekle</button></div>
+    ${inc.length ? `<div class="time" style="margin-top:14px">Gelen istekler</div>` + inc.map(r => person(r.from, `<button class="sm ok" data-act="acc" data-n="${esc(r.from)}">Kabul</button><button class="sm" data-act="rej" data-n="${esc(r.from)}">Reddet</button>`)).join('') : ''}
+    ${out.length ? `<div class="time" style="margin-top:14px">Gönderilen istekler</div>` + out.map(r => person(r.to, `<span class="time">Bekliyor</span>`)).join('') : ''}
+    <div class="time" style="margin-top:14px">Arkadaşlarım (${fr.length})</div>
+    ${fr.length ? fr.map(n => person(n, `<button class="sm" data-act="chat" data-n="${esc(n)}">Mesaj</button>`)).join('') : '<div class="empty" style="padding:14px">Henüz arkadaşın yok. Yukarıya bir ad yazıp ekle.</div>'}
+  </div>`;
+}
+function sendReq() {
+  const n = $('#fs').value.trim();
+  if (!n) return toast('Bir ad yaz');
+  if (n === me) return toast('Kendini ekleyemezsin');
+  if (!db.users[n]) return toast('Bu adda kullanıcı yok');
+  if (friendsOf(me).includes(n)) return toast('Zaten arkadaşsınız');
+  if (db.reqs.some(r => r.from === me && r.to === n)) return toast('İstek zaten gönderildi');
+  if (db.reqs.some(r => r.from === n && r.to === me)) return acceptReq(n);
+  db.reqs.push({ from: me, to: n }); save(); toast('İstek gönderildi'); render();
+}
+function acceptReq(n) {
+  db.reqs = db.reqs.filter(r => !((r.from === n && r.to === me) || (r.from === me && r.to === n)));
+  db.users[me].friends = friendsOf(me).slice();
+  db.users[n].friends = friendsOf(n).slice();
+  if (!db.users[me].friends.includes(n)) db.users[me].friends.push(n);
+  if (!db.users[n].friends.includes(me)) db.users[n].friends.push(me);
+  save(); toast('Arkadaş eklendi'); render();
+}
+function rejectReq(n) { db.reqs = db.reqs.filter(r => !(r.from === n && r.to === me)); save(); render(); }
+
+/* EVENTS */
+function bind() {
+  const on = (id, ev, fn) => { const el = $(id); if (el) el.addEventListener(ev, fn); };
+  on('#tog', 'click', () => { mode = mode === 'login' ? 'reg' : 'login'; render(); });
+  on('#avIn', 'change', async e => { const f = e.target.files[0]; if (!f) return; pendingAv = await shrink(await readFile(f)); $('#avp').innerHTML = `<img src="${pendingAv}">`; });
+  on('#sub', 'click', submitAuth);
+  on('#pw', 'keydown', e => e.key === 'Enter' && submitAuth());
+  on('#mIn', 'change', async e => { const f = e.target.files[0]; if (!f) return; pendingMedia = { type: 'image', data: await readFile(f) }; previewMedia(); });
+  on('#vIn', 'change', async e => { const f = e.target.files[0]; if (!f) return; if (f.size > 4e6) return toast('Video en fazla 4 MB olabilir'); pendingMedia = { type: 'video', data: await readFile(f) }; previewMedia(); });
+  on('#post', 'click', () => {
+    const text = $('#ptxt').value.trim();
+    if (!text && !pendingMedia) return toast('Yazı veya medya ekle');
+    db.posts.push({ id: Math.random().toString(36).slice(2), user: me, text, media: pendingMedia?.data || null, type: pendingMedia?.type || null, t: Date.now(), likes: [] });
+    pendingMedia = null; save(); toast('Paylaşıldı'); render();
+  });
+  on('#send', 'click', sendMsg);
+  on('#msg', 'keydown', e => e.key === 'Enter' && sendMsg());
+  on('#fadd', 'click', sendReq);
+  on('#fs', 'keydown', e => e.key === 'Enter' && sendReq());
+  document.querySelectorAll('[data-act]').forEach(el => el.addEventListener('click', () => {
+    const a = el.dataset.act, n = el.dataset.n;
+    if (a === 'acc') acceptReq(n);
+    else if (a === 'rej') rejectReq(n);
+    else if (a === 'chat') { tab = 'msgs'; openChat(n); }
+    else if (a === 'gofr') go('profile');
+  }));
+  on('#logout', 'click', () => { setMe(null); tab = 'home'; render(); });
+}
+function previewMedia() { const p = $('#prev'); if (!pendingMedia) return p.innerHTML = ''; p.innerHTML = pendingMedia.type === 'video' ? `<video class="media" src="${pendingMedia.data}" controls></video>` : `<img class="media" src="${pendingMedia.data}">`; }
+function sendMsg() { const i = $('#msg'); const t = i.value.trim(); if (!t) return; db.msgs.push({ from: me, to: chatWith, text: t, t: Date.now() }); save(); render(); $('#msg')?.focus(); }
+
+function submitAuth() {
+  const name = $('#nm').value.trim(), pw = $('#pw').value;
+  const err = m => $('#err').textContent = m;
+  if (!name) return err('Ad gerekli.');
+  if (pw.length < 4) return err('Şifre en az 4 karakter olmalı.');
+  if (mode === 'reg') {
+    if (db.users[name]) return err('Bu ad alınmış.');
+    db.users[name] = { pass: pw, avatar: pendingAv, friends: [] }; pendingAv = null;
+    save(); setMe(name); toast('Hoş geldin, ' + name + '!');
+  } else {
+    const u = db.users[name];
+    if (!u) return err('Bu ad kayıtlı değil. Aşağıdan "Hesabın yok mu? Kaydol" seçeneğine tıkla.');
+    if (u.pass !== pw) return err('Şifre hatalı.');
+    setMe(name); toast('Tekrar hoş geldin!');
+  }
+  tab = 'home'; render();
+}
+
+render();
+</script>
+</body>
+</html>
